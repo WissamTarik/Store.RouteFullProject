@@ -1,0 +1,6 @@
+@Store.Route.Web_HostAddress = http://localhost:5023
+
+GET {{Store.Route.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
