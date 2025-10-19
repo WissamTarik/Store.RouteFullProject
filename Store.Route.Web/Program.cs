@@ -1,4 +1,9 @@
 
+using Microsoft.EntityFrameworkCore;
+using Store.Route.Domain.Contracts;
+using Store.Route.Persistance;
+using Store.Route.Persistance.Data.Contexts;
+
 namespace Store.Route.Web
 {
     public class Program
@@ -14,7 +19,19 @@ namespace Store.Route.Web
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
+            builder.Services.AddDbContext<StoreDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             var app = builder.Build();
+
+
+            var Scope = app.Services.CreateScope();
+
+            var DbInitializer = Scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+            DbInitializer.InitializeAsync();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
