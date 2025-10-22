@@ -1,0 +1,19 @@
+﻿using Store.Route.Shared.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Store.Route.Services.Abstractions.Products
+{
+    public interface IProductService
+    {
+        Task<IEnumerable<ProductResponse>> GetAllProductsAsync(int ? brandId,int? typeId,string?sort,string? search);
+
+        Task<ProductResponse> GetProductByIdAsync(int id);
+
+        Task<IEnumerable<BrandTypeResponse>> GetAllBrandsAsync();
+        Task<IEnumerable<BrandTypeResponse>> GetAllTypesAsync();
+    }
+}

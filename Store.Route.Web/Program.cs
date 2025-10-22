@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Store.Route.Domain.Contracts;
 using Store.Route.Persistance;
 using Store.Route.Persistance.Data.Contexts;
+using Store.Route.Services;
+using Store.Route.Services.Abstractions;
+using Store.Route.Services.Mapping.Products;
 
 namespace Store.Route.Web
 {
@@ -25,6 +28,13 @@ namespace Store.Route.Web
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            builder.Services.AddScoped<IServiceManager,ServiceManager>();
+
+
+            builder.Services.AddAutoMapper(M => M.AddProfile(new ProductProfile(builder.Configuration)));
             var app = builder.Build();
 
 
@@ -39,6 +49,8 @@ namespace Store.Route.Web
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
 
