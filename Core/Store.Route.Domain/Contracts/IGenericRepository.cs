@@ -12,7 +12,10 @@ namespace Store.Route.Domain.Contracts
 
         Task<IEnumerable<TEntity>> GetAllAsync(bool changeTracker=false);
 
-        Task<TEntity?> GetAsync(TEntity entity);
+        Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TKey, TEntity> spec, bool changeTracker = false);
+
+        Task<TEntity?> GetAsync(TKey id);
+        Task<TEntity?> GetAsync(ISpecifications<TKey,TEntity> spec,TKey id);
 
         Task AddAsync(TEntity entity);
         void Update(TEntity entity);
