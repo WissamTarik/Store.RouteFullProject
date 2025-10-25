@@ -1,4 +1,5 @@
 ﻿using Store.Route.Domain.Entities.Products;
+using Store.Route.Shared.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,18 +12,23 @@ namespace Store.Route.Services.Specifications
     public class ProductsWithBrandAndTypeSpecifications:BaseSpecification<int,Product>
     {
 
-        public ProductsWithBrandAndTypeSpecifications(int? brandId, int? typeId,string? sort,string? search) : base(
-           p=>(!brandId.HasValue || brandId==p.BrandId)
+        public ProductsWithBrandAndTypeSpecifications(ProductQueryParameters  parameters) : base(
+           p=>(!parameters.BrandId.HasValue|| parameters.BrandId==p.BrandId)
               &&
-             (!typeId.HasValue || typeId == p.TypeId)
+             (!parameters.TypeId.HasValue || parameters.TypeId == p.TypeId)
            &&
-           (string.IsNullOrEmpty(search) || p.Name.ToLower().Contains(search.ToLower()))
+           (string.IsNullOrEmpty(parameters.Search) || p.Name.ToLower().Contains(parameters.Search.ToLower()))
                 )
         {
 
-            ApplySorting(sort);
+            //PageIndex=3
+            //PageSize=5
+            //Skip=(3-1)*5 (PageIndex-1)*PageSize
+            //Take=5 PageSize
+            ApplySorting(parameters.Sort);
 
             ApplyIncludes();
+            ApplyPagination(parameters.PageSize, parameters.PageIndex);
         }
         public ProductsWithBrandAndTypeSpecifications(int id):base(p=>p.Id==id)
         {
@@ -31,7 +37,7 @@ namespace Store.Route.Services.Specifications
 
         private void ApplySorting(string? sort)
         {
-            if (string.IsNullOrEmpty(sort))
+            if (!string.IsNullOrEmpty(sort))
             {
                 switch (sort)
                 {

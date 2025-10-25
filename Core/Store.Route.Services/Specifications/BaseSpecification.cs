@@ -15,10 +15,19 @@ namespace Store.Route.Services.Specifications
         public Expression<Func<TEntity, bool>>? Criteria { get ; set ; }
         public Expression<Func<TEntity, object>>? OrderBy { get ; set; }
         public Expression<Func<TEntity, object>>? OrderByDescending { get; set; }
+        public int Take { get; set; }
+        public int Skip { get ; set ; }
+        public bool IsPagination { get ; set ; }
 
         public BaseSpecification(Expression<Func<TEntity,bool>> expression)
         {
             Criteria = expression;
+        }
+        public void ApplyPagination(int pageSize,int pageIndex)
+        {
+            IsPagination = true;
+            Skip = (pageIndex - 1) * pageSize;
+            Take = pageSize;
         }
         public void AddOrderBy(Expression<Func<TEntity,object>> expression)
         {

@@ -32,6 +32,11 @@ namespace Store.Route.Persistance
               query=  query.OrderByDescending(spec.OrderByDescending);
             }
 
+            if (spec.IsPagination)
+            {
+                query = query.Skip(spec.Skip).Take(spec.Take);
+            }
+
             query = spec.Includes.Aggregate(query, (query, includeExpression) => query.Include(includeExpression));
             return query;
         }
