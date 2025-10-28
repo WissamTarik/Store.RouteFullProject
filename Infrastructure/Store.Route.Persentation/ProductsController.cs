@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Store.Route.Services.Abstractions;
+using Store.Route.Shared.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,9 @@ namespace Store.Route.Persentation
     {
       
         [HttpGet]//GET:baseUrl/api/Products
-        public async Task<IActionResult> GetAllProducts(int? brandId, int? typeId,string ? sort,string?search)
+        public async Task<IActionResult> GetAllProducts([FromQuery]ProductQueryParameters parameters)
         {
-            var Result=await _serviceManager.ProductService.GetAllProductsAsync(brandId,typeId,sort,search);
+            var Result=await _serviceManager.ProductService.GetAllProductsAsync(parameters);
             if (Result is null) return BadRequest();//404
              return Ok(Result);//200
         }
@@ -26,7 +27,7 @@ namespace Store.Route.Persentation
         {
             if (id is null) return BadRequest();//400
             var Result = await _serviceManager.ProductService.GetProductByIdAsync(id.Value);
-            if (Result is null) return NotFound();//404
+            //if (Result is null) return NotFound();//404
             return Ok(Result);
         }
 

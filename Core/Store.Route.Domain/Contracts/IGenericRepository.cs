@@ -16,6 +16,7 @@ namespace Store.Route.Domain.Contracts
 
         Task<TEntity?> GetAsync(TKey id);
         Task<TEntity?> GetAsync(ISpecifications<TKey,TEntity> spec,TKey id);
+        Task<int> CountAsync(ISpecifications<TKey,TEntity> spec);
 
         Task AddAsync(TEntity entity);
         void Update(TEntity entity);

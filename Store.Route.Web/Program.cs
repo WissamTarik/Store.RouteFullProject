@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Store.Route.Domain.Contracts;
 using Store.Route.Persistance;
@@ -6,6 +7,8 @@ using Store.Route.Persistance.Data.Contexts;
 using Store.Route.Services;
 using Store.Route.Services.Abstractions;
 using Store.Route.Services.Mapping.Products;
+using Store.Route.Shared.ErrorModel;
+using Store.Route.Web.Middlewares;
 
 namespace Store.Route.Web
 {
@@ -35,6 +38,27 @@ namespace Store.Route.Web
 
 
             builder.Services.AddAutoMapper(M => M.AddProfile(new ProductProfile(builder.Configuration)));
+
+            builder.Services.Configure<ApiBehaviorOptions>(config =>
+            {
+                config.InvalidModelStateResponseFactory = (actionContext) =>
+                {
+                    var errors = actionContext.ModelState.Where(m => m.Value.Errors.Any())
+                                .Select(m => new ValidationError()
+                                {
+                                    Field = m.Key,
+                                    Errors = m.Value.Errors.Select(e=>e.ErrorMessage)
+                                });
+
+                    var Response = new ValidationErrorResponse()
+                    {
+                        Errors = errors
+                    };
+                    return new BadRequestObjectResult(Response);
+                };
+            });
+            
+            
             var app = builder.Build();
 
 
@@ -42,6 +66,9 @@ namespace Store.Route.Web
 
             var DbInitializer = Scope.ServiceProvider.GetRequiredService<IDbInitializer>();
             DbInitializer.InitializeAsync();
+
+
+            app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

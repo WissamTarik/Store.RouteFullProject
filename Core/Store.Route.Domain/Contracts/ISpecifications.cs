@@ -19,5 +19,8 @@ namespace Store.Route.Domain.Contracts
         public Expression<Func<TEntity,object>>? OrderBy { get; set; }
 
         public Expression<Func<TEntity,object>>? OrderByDescending { get; set; }
+        public int Take { get; set; }
+        public int Skip { get; set; }
+        public bool IsPagination { get; set; }
     }
 }
