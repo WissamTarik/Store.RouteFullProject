@@ -1,0 +1,17 @@
+﻿using Store.Route.Shared.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Store.Route.Services.Abstractions.Basket
+{
+    public interface IBasketServices
+    {
+        Task<BasketDto?> GetBasketAsync(string id);
+
+        Task<BasketDto?> UpdateBasketAsync(BasketDto basket);
+        Task<bool> DeleteBasketAsync(string id);
+    }
+}
