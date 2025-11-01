@@ -51,6 +51,8 @@ namespace Store.Route.Web.Middlewares
             {
                 NotFoundException => StatusCodes.Status404NotFound,
                 BadRequestException => StatusCodes.Status400BadRequest,
+                UnAuthorizedException=>StatusCodes.Status401Unauthorized,
+                ValidationException=>HandleValidationErrorException((ValidationException)ex,Response),
                 _ => StatusCodes.Status500InternalServerError
             };
 
@@ -68,6 +70,13 @@ namespace Store.Route.Web.Middlewares
                 ErrorMessage = $"End point {context.Request.Path} is not found"
             };
             await context.Response.WriteAsJsonAsync(Response);
+        }
+
+        private static int HandleValidationErrorException(ValidationException ex,ErrorDetails response)
+        {
+            response.Errors = ex.Errors;
+            return StatusCodes.Status400BadRequest;
+
         }
     }
 }

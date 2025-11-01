@@ -1,11 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Store.Route.Domain.Contracts;
+using Store.Route.Domain.Entities.Identity;
 using Store.Route.Persistance;
+using Store.Route.Persistance.Data.Contexts;
+using Store.Route.Persistance.Identity;
 using Store.Route.Services;
 using Store.Route.Shared.ErrorModel;
 using Store.Route.Web.Middlewares;
 using System.Runtime.CompilerServices;
-
+using Microsoft.IdentityModel.Tokens;
+using Store.Route.Shared.JWT;
+using System.Text;
 namespace Store.Route.Web.Extensions
 {
     public static class Extensions
@@ -17,9 +24,9 @@ namespace Store.Route.Web.Extensions
             services.AddSwaggerServices();
             services.AddInfrastructureServicesRegistration(configuration);
             services.AddApplicationServices(configuration);
-
+            services.AddIdentityServices();
             services.ConfigureServices();
-
+            services.ConfigureJWTServices(configuration);
             return services;
         }
 
@@ -30,6 +37,44 @@ namespace Store.Route.Web.Extensions
 
 
         }
+       
+
+        private static IServiceCollection ConfigureJWTServices(this IServiceCollection services,IConfiguration configuration)
+        {
+            var JwtOptions = configuration.GetSection("JwtOptions").Get<JWTOptions>();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters =new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience=true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    
+                    ValidIssuer=JwtOptions.Issuer,
+                    ValidAudience=JwtOptions.Audience,
+                    IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOptions.SecretKey)),
+                };
+            });
+
+
+            return services;
+        }
+
+
+        private static IServiceCollection AddIdentityServices(this IServiceCollection services)
+        {
+            services.AddIdentity<AppUser, IdentityRole>()
+                   .AddEntityFrameworkStores<StoreIdentityDbContext>();
+
+            return services;
+        }
+        
+        
         private static IServiceCollection AddSwaggerServices(this IServiceCollection services)
         {
             services.AddEndpointsApiExplorer();
@@ -78,6 +123,7 @@ namespace Store.Route.Web.Extensions
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
@@ -91,7 +137,7 @@ namespace Store.Route.Web.Extensions
 
            var DbInitializer=  Scope.ServiceProvider.GetRequiredService<IDbInitializer>();
             await DbInitializer.InitializeAsync();
-            
+            await DbInitializer.InitializeIdentityAsync();
             return app;
         }
     

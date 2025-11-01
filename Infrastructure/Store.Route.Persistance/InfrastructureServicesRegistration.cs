@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using Store.Route.Domain.Contracts;
 using Store.Route.Persistance.Data.Contexts;
+using Store.Route.Persistance.Identity;
 using Store.Route.Persistance.Repositories;
 using Store.Route.Services;
 using Store.Route.Services.Abstractions;
@@ -22,6 +23,11 @@ namespace Store.Route.Persistance
             services.AddDbContext<StoreDbContext>(config =>
             {
                 config.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            services.AddDbContext<StoreIdentityDbContext>(config =>
+            {
+                config.UseSqlServer(configuration.GetConnectionString("IdentityConnection"));
             });
             services.AddScoped<IDbInitializer, DbInitializer>();
 
