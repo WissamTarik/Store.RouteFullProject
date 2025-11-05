@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Store.Route.Domain.Contracts;
 using Store.Route.Domain.Entities.Identity;
+using Store.Route.Domain.Entities.Orders;
 using Store.Route.Domain.Entities.Products;
 using Store.Route.Persistance.Data.Contexts;
 using Store.Route.Persistance.Identity;
@@ -105,6 +106,21 @@ namespace Store.Route.Persistance
 
             #endregion
 
+
+            #region Data seeding of delivery methods
+            if (!_context.DeliveryMethods.Any())
+            {
+                var DeliveryMethodsData = await File.ReadAllTextAsync(@"..\Infrastructure\Store.Route.Persistance\Data\DataSeeding\delivery.json");
+                 
+                var DeliveryMethods=JsonSerializer.Deserialize<List<DeliveryMethod>>(DeliveryMethodsData);
+
+                if(DeliveryMethods is not null && DeliveryMethods.Count() > 0)
+                {
+                   await _context.AddRangeAsync(DeliveryMethods);
+                }
+            }
+
+            #endregion
             await _context.SaveChangesAsync();
 
         }

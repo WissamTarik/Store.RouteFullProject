@@ -41,6 +41,8 @@ namespace Store.Route.Web.Extensions
 
         private static IServiceCollection ConfigureJWTServices(this IServiceCollection services,IConfiguration configuration)
         {
+            services.Configure<JWTOptions>(configuration.GetSection("JwtOptions"));
+
             var JwtOptions = configuration.GetSection("JwtOptions").Get<JWTOptions>();
             services.AddAuthentication(options =>
             {
