@@ -8,6 +8,8 @@ using Store.Route.Persistance.Identity;
 using Store.Route.Persistance.Repositories;
 using Store.Route.Services;
 using Store.Route.Services.Abstractions;
+using Store.Route.Services.Abstractions.Order;
+using Store.Route.Services.Orders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +37,7 @@ namespace Store.Route.Persistance
             services.AddScoped<IBasketRepository,BasketRepository>();
             services.AddScoped<ICacheRepository,CacheRepository>();
             services.AddScoped<ICacheService,CacheService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             services.AddTransient<IConnectionMultiplexer>((serviceProvider) =>
             {

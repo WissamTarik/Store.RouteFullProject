@@ -7,9 +7,11 @@ using Store.Route.Domain.Entities.Identity;
 using Store.Route.Services.Abstractions;
 using Store.Route.Services.Abstractions.Auth;
 using Store.Route.Services.Abstractions.Basket;
+using Store.Route.Services.Abstractions.Order;
 using Store.Route.Services.Abstractions.Products;
 using Store.Route.Services.Auth;
 using Store.Route.Services.Basket;
+using Store.Route.Services.Orders;
 using Store.Route.Services.Products;
 using Store.Route.Shared.JWT;
 using System;
@@ -35,5 +37,7 @@ namespace Store.Route.Services
         public ICacheService CacheService { get; }=new CacheService(_cacheRepository);
 
         public IAuthService AuthService { get; } = new AuthService(_userManager,options);
+
+        public IOrderService OrderService { get; } = new OrderService(_unitOfWork,_basketRepository,_mapper) ;
     }
 }

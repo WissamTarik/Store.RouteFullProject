@@ -1,5 +1,6 @@
 ﻿using Store.Route.Services.Abstractions.Auth;
 using Store.Route.Services.Abstractions.Basket;
+using Store.Route.Services.Abstractions.Order;
 using Store.Route.Services.Abstractions.Products;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Store.Route.Services.Abstractions
         IBasketServices BasketServices { get; }
         ICacheService CacheService { get; }
         IAuthService AuthService { get; }
+        IOrderService OrderService { get; }
 
     }
 }
