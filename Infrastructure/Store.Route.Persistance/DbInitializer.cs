@@ -1,7 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Store.Route.Domain.Contracts;
+using Store.Route.Domain.Entities.Identity;
+using Store.Route.Domain.Entities.Orders;
 using Store.Route.Domain.Entities.Products;
 using Store.Route.Persistance.Data.Contexts;
+using Store.Route.Persistance.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +15,16 @@ using System.Threading.Tasks;
 
 namespace Store.Route.Persistance
 {
-    public class DbInitializer(StoreDbContext _context) : IDbInitializer
+    public class DbInitializer(StoreDbContext _context,
+        StoreIdentityDbContext IdentityDbContext,
+        UserManager<AppUser> userManager,
+        RoleManager<IdentityRole> roleManager
+        ) : IDbInitializer
     {
+        private readonly StoreIdentityDbContext _IdentityDbContext = IdentityDbContext;
+        private readonly UserManager<AppUser> _UserManager = userManager;
+        private readonly RoleManager<IdentityRole> _RoleManager = roleManager;
+
         public async Task InitializeAsync()
         {
             //Create DB
@@ -94,8 +106,70 @@ namespace Store.Route.Persistance
 
             #endregion
 
+
+            #region Data seeding of delivery methods
+            if (!_context.DeliveryMethods.Any())
+            {
+                var DeliveryMethodsData = await File.ReadAllTextAsync(@"..\Infrastructure\Store.Route.Persistance\Data\DataSeeding\delivery.json");
+                 
+                var DeliveryMethods=JsonSerializer.Deserialize<List<DeliveryMethod>>(DeliveryMethodsData);
+
+                if(DeliveryMethods is not null && DeliveryMethods.Count() > 0)
+                {
+                   await _context.AddRangeAsync(DeliveryMethods);
+                }
+            }
+
+            #endregion
             await _context.SaveChangesAsync();
 
+        }
+
+        public async Task InitializeIdentityAsync()
+        {
+            //Create Database if It does'nt exist && apply any pending migration
+            if (_IdentityDbContext.Database.GetPendingMigrations().Any())
+            {
+              await  _IdentityDbContext.Database.MigrateAsync();
+            }
+
+            //Data seeding
+
+            //Create Role
+            if (!_RoleManager.Roles.Any())
+            {
+
+           await _RoleManager.CreateAsync(new IdentityRole() { Name = "Admin" });
+            await _RoleManager.CreateAsync(new IdentityRole() { Name = "SuperAdmin" });
+            }
+          
+            
+            if (!_UserManager.Users.Any())
+            {
+                var SuperAdmin = new AppUser()
+                {
+                    DisplayName = "Super Admin",
+                    Email = "SuperAdmin@gmail.com",
+                    UserName = "SuperAdmin",
+                    PhoneNumber = "0123456789"
+                };
+                var Admin = new AppUser()
+                {
+                    DisplayName = "Admin",
+                    Email = "Admin@gmail.com",
+                    UserName = "Admin",
+                    PhoneNumber = "0123456789"
+                };
+               await _UserManager.CreateAsync(SuperAdmin, "P@ssW0rd");
+                await _UserManager.CreateAsync(Admin, "P@ssW0rd");
+
+
+               await _UserManager.AddToRoleAsync(SuperAdmin, "SuperAdmin");
+
+                await _UserManager.AddToRoleAsync(Admin, "Admin");
+            }
+
+           await _IdentityDbContext.SaveChangesAsync();
         }
     }
 }
